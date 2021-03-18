@@ -12,7 +12,7 @@ new_filename='541FridgePack19.11.20/541fridgecodes-spare-columns.txt'
 fullcodelist=[]
 codeFile = open(original_filename,'rU+')
 rows = codeFile.read().split('\n')
-print len(rows)
+print(len(rows))
 i=0
 for row in rows:
     if i==0:

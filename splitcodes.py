@@ -42,9 +42,9 @@ for row in rows:
 			continue
 
 if numberofcodes > codes1+codes2+codes3+codes4:
-	print("You have "+str(numberofcodes)+" in your list however you have only split out "+str(codes1+codes2+codes3+codes4)+" into separate groups - this is a mistake")
+	print(("You have "+str(numberofcodes)+" in your list however you have only split out "+str(codes1+codes2+codes3+codes4)+" into separate groups - this is a mistake"))
 if numberofcodes < codes1+codes2+codes3+codes4:
-	print("You have "+str(numberofcodes)+" in your list however you have tried to split out "+str(codes1+codes2+codes3+codes4)+" into separate groups - this is a mistake")
+	print(("You have "+str(numberofcodes)+" in your list however you have tried to split out "+str(codes1+codes2+codes3+codes4)+" into separate groups - this is a mistake"))
 lazy_write("575g20190829.csv",codes1list)
 lazy_write("1120g20190829.csv",codes2list)
 lazy_write("800gSpare.csv",codes3list)

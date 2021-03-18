@@ -10,7 +10,7 @@ code_length = 7
 seed = 100
 
 total = len(characters)**7
-print total/1566797
+print(total/1566797)
 
 allotments = [        
     Allotment('primary-1',712180),
