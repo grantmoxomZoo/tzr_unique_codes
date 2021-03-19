@@ -97,4 +97,5 @@ def split_to_groups():
 
 if __name__ == '__main__':
     # generate()
-    split_to_groups()
+    # split_to_groups()
+    print ("Don't use this anymore - phcodes is better")

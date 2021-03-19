@@ -1,4 +1,4 @@
-import random
+import random,os
 
 class Allotment(object):
     def __init__(self, name, count):
@@ -6,46 +6,97 @@ class Allotment(object):
         self.count = count
 
 characters = 'CDFHJKLMNPRTXZ3479'
-code_length = 7
+code_length = 9
 seed = 100
-
-total = len(characters)**7
-print(total/1566797)
+codecsv_heading='code'
 
 allotments = [        
-    Allotment('primary-1',712180),
-    Allotment('primary-2',712180),
-    Allotment('spare', 142436),
-    Allotment('testing', 1000)
+    Allotment('test_primary-1',10),
+    Allotment('test_primary-2',0),
+    Allotment('test_spare', 0),
+    Allotment('test_testing', 0)
 ]
 
-#    Allotment('codes',19320000),
-#    Allotment('telephone', 10000),
-#    Allotment('testing', 1000)
 
 def generate_unique_codes(characters, code_length, number_of_codes, seed):
     random.seed(seed)
-    codes = set()
+    all_codes = set()
+    excludes=set()
+    if os.path.exists('excludes.csv'):  # for topping up codes, anything in exclude.txt will be excluded
+        print("Using excludes file")
+        with open('excludes.csv', 'r+') as fp:
+            rows = fp.read().split('\n')
+            for row in rows:
+                if row == '': continue
+                excludes.add(row.strip())
+                all_codes.add(row.strip())
+    total_possible_codes= len(characters)**code_length-len(excludes)
+    #Sense Check
+    print(f"{total_possible_codes}/{number_of_codes}={total_possible_codes / number_of_codes}")
+    if total_possible_codes / number_of_codes < 10:
+        print(
+            f"{total_possible_codes}/{number_of_codes}={total_possible_codes / number_of_codes}Are you sure you want to do this? That's not enough codes")
+
     while True:
         s = ''.join(random.choice(characters) for i in range(code_length))
-        codes.add(s) 
-        if len(codes) >= number_of_codes:
-            return list(codes)
+        all_codes.add(s)
+        if len(all_codes)-len(excludes) >= number_of_codes:
+            codes=list(all_codes.difference(excludes))
+            return codes
 
 def split_codes(unique_codes, allotments):
     for allotment in allotments:
         allotment.codes = unique_codes[0:allotment.count]
         del unique_codes[0:allotment.count]
 
-total = sum([allotment.count for allotment in allotments])
-codes = generate_unique_codes(characters, code_length, total, seed)
-codes = split_codes(codes, allotments)
+def generate():
+    total = sum([allotment.count for allotment in allotments])
+    codes = generate_unique_codes(characters, code_length, total, seed)
+    codes = split_codes(codes, allotments)
 
-codes_done = {}
-for allotment in allotments:
-    file = open(allotment.name+'.csv', 'w')
-    file.write('code\n')
-    for code in allotment.codes:
-        file.write('%s\n' % (code))
-        assert not code in codes_done
-        codes_done[code] = True
+    codes_done = {}
+    for allotment in allotments:
+        file = open(allotment.name+'.csv', 'w')
+        file.write(f'{codecsv_heading}\n')
+        for code in allotment.codes:
+            file.write(f"{code}\n")
+            if code not in codes_done:
+                codes_done[code] = True
+            else:
+                print("Hmm... this used to be an assert not thing but I changed it, did I break something?")
+        file.close()
+
+def split_to_groups():
+    """Splits code into groups with one code being the 'master' for each group"""
+    file_name=f"{allotments[0].name}.csv"
+    book_length = 1200
+    number_of_books=2600
+    header_text="Cover_Code,Coupon_Code"
+    code_list = []
+    with open(file_name,'r') as code_import:
+        code_import=[code.split()[0] for code in code_import]
+        for code in code_import:
+            if code!=codecsv_heading:
+                code_list.append(code)
+    #Sense check
+    if len(code_list)<book_length*number_of_books+number_of_books:
+        #checks if the there are enough codes for all vouches + all grouping codes for the book labels
+        print ("Something is wrong, you don't have enough codes for the promo")
+
+    more_spares= open('more-spares.csv', 'w') #just in case - this shouldn't be used
+
+    with open('code_list.csv','w') as code_list_export:
+        code_list_export.write(f"{header_text}\n")
+        for i,code in enumerate(code_list):
+            if i<number_of_books*book_length+number_of_books:
+                if i==0 or (i)%(book_length+1)==0:
+                    code_list_export.write(f"{code},\n")
+                else:
+                    code_list_export.write(f",{code}\n")
+            else:
+                code_list_export.close()
+                more_spares.write(f"{code}\n")
+    more_spares.close()
+if __name__ == "__main__":
+    # generate()
+    split_to_groups()
