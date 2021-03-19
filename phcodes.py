@@ -9,7 +9,8 @@ characters = 'CDFHJKLMNPRTXZ3479'
 code_length = 9
 seed = 100
 codecsv_heading='code'
-
+file_type='.csv'
+excludes_filename='excludes.csv'
 allotments = [        
     Allotment('test_primary-1',10),
     Allotment('test_primary-2',0),
@@ -22,9 +23,9 @@ def generate_unique_codes(characters, code_length, number_of_codes, seed):
     random.seed(seed)
     all_codes = set()
     excludes=set()
-    if os.path.exists('excludes.csv'):  # for topping up codes, anything in exclude.txt will be excluded
+    if os.path.exists(f'{excludes_filename}'):  # for topping up codes, anything in exclude.txt will be excluded
         print("Using excludes file")
-        with open('excludes.csv', 'r+') as fp:
+        with open(f'{excludes_filename}', 'r+') as fp:
             rows = fp.read().split('\n')
             for row in rows:
                 if row == '': continue
@@ -56,7 +57,7 @@ def generate():
 
     codes_done = {}
     for allotment in allotments:
-        file = open(allotment.name+'.csv', 'w')
+        file = open(allotment.name+file_type, 'w')
         file.write(f'{codecsv_heading}\n')
         for code in allotment.codes:
             file.write(f"{code}\n")
@@ -68,7 +69,7 @@ def generate():
 
 def split_to_groups():
     """Splits code into groups with one code being the 'master' for each group"""
-    file_name=f"{allotments[0].name}.csv"
+    file_name=f"{allotments[0].name}{file_type}"
     book_length = 1200
     number_of_books=2600
     header_text="Cover_Code,Coupon_Code"
@@ -83,9 +84,9 @@ def split_to_groups():
         #checks if the there are enough codes for all vouches + all grouping codes for the book labels
         print ("Something is wrong, you don't have enough codes for the promo")
 
-    more_spares= open('more-spares.csv', 'w') #just in case - this shouldn't be used
+    more_spares= open(f'more-spares{file_type}', 'w') #just in case - this shouldn't be used
 
-    with open('code_list.csv','w') as code_list_export:
+    with open(f'code_list{file_type}','w') as code_list_export:
         code_list_export.write(f"{header_text}\n")
         for i,code in enumerate(code_list):
             if i<number_of_books*book_length+number_of_books:
