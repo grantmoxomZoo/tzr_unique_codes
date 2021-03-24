@@ -67,7 +67,7 @@ def generate():
                 print("Hmm... this used to be an assert not thing but I changed it, did I break something?")
         file.close()
 
-def split_to_groups():
+def split_to_groups(file_name=None):
     """Splits code into groups with one code being the 'master' for each group"""
     file_name=f"{allotments[0].name}{file_type}"
     book_length = 1200
@@ -98,6 +98,36 @@ def split_to_groups():
                 code_list_export.close()
                 more_spares.write(f"{code}\n")
     more_spares.close()
+
+def split_to_multiple_files(input_file,file_length=None):
+    book_length = 1200
+    number_of_books = 2600
+    original_file_length=number_of_books*book_length+number_of_books #plus the header line
+    alt_book_size=int((original_file_length - number_of_books)/book_length/10)
+    book_size=int(number_of_books/10)
+    print (alt_book_size)
+    print (book_size)
+    if not file_length:
+        file_length=book_size*book_length+book_size #plus the header line -
+    smallfile = None
+    file_name= open(input_file,'r')
+    for count,line in enumerate(file_name):
+        if count ==0:
+            small_filename = f"small_file{count + file_length}.csv"
+            smallfile = open(small_filename, 'w')
+        if (count)  % file_length ==0:
+            if smallfile:
+                smallfile.close()
+            small_filename=f"small_file{count+file_length}.csv"
+            smallfile=open(small_filename,'w')
+        if smallfile:
+            if count % file_length==0 or count==0:
+                smallfile.write('Cover_Code,Coupon_Code\n')
+            smallfile.write(line)
+
 if __name__ == "__main__":
+    pass
+    # split_to_multiple_files('code_list.csv')
+    # split_to_groups('small_file240000.csv')
     # generate()
-    split_to_groups()
+    # split_to_groups()
